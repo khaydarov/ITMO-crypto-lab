@@ -18,8 +18,10 @@
         'Rabbit'
       ]
     });
+    const message = "my message"
+    console.log('message is:', message)
 
-    const cipherText = cs.encrypt("my message");
+    const cipherText = cs.encrypt(message);
     console.log('encrypted:', cipherText);
 
     const originalText = cs.decrypt(cipherText);
