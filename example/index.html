@@ -3,14 +3,54 @@
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
-    <script src="./../build/app.js"></script>
+    <script src="./../build/crypto.js"></script>
+    <script src="./../build/playground.js"></script>
+    <style>
+        .container {
+        }
+
+        .container__message-area {
+            border: 1px solid rgba(0, 0, 0, .35);
+            height: 400px;
+            padding: 10px;
+        }
+
+        .container__input {
+            position: relative;
+            margin-top: 10px;
+            padding: 10px;
+            border: 1px solid rgba(0, 0, 0, .35);
+            outline: none;
+        }
+
+        .container__input::before {
+            content: '';
+            position: absolute;
+            display: block;
+        }
+
+        .container__input:empty:focus::before {
+            content: '';
+        }
+
+        .container__input:empty::before {
+            content: 'Type text...';
+            opacity: .8;
+        }
+    </style>
 </head>
 <body>
-    Playground
+    <div class="container" id="messenger">
+        <div class="container__message-area">
+
+        </div>
+        <div class="container__input" contenteditable="true"></div>
+    </div>
 </body>
 <script>
-    const cs = new CryptoSystem({
+    const cs = new App.crypto({
       salt: "secretkey",
+      keyMaxLength: 10,
       algorithms: [
         'DES',
         'AES',
@@ -18,13 +58,11 @@
         'Rabbit'
       ]
     });
-    const message = "my message"
-    console.log('message is:', message)
 
-    const cipherText = cs.encrypt(message);
-    console.log('encrypted:', cipherText);
-
-    const originalText = cs.decrypt(cipherText);
-    console.log('original:', originalText);
+    const playground = new App.playground({
+      holder: 'messenger',
+      socketServer: '127.0.0.1:1337',
+      cryptoSystem: cs
+    });
 </script>
 </html>

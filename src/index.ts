@@ -42,7 +42,7 @@ export default class CryptoSystem {
    * @return string
    */
   public encrypt(message: string): string {
-    const key = this.keyGenerator.generate(message, this.config.salt);
+    const key = this.keyGenerator.generate(message, this.config.salt, this.config.keyMaxLength);
     const algorithm = this.getEncryptionAlgorithm(key);
     const encrypted = this.crypto.encrypt(algorithm, message, key);
 
@@ -61,6 +61,7 @@ export default class CryptoSystem {
     const cipherText = recovered.cipherText;
     const algorithm = this.getEncryptionAlgorithm(key);
 
+    console.log(`Using ${algorithm} encryption algorithm`);
     return this.crypto.decrypt(algorithm, cipherText, key);
   }
 
@@ -107,7 +108,7 @@ export default class CryptoSystem {
       cipherText = parts.right + char + parts.left;
     }
 
-    return cipherText + ':' + keyChars.length;
+    return cipherText;
   }
 
   /**
@@ -118,10 +119,9 @@ export default class CryptoSystem {
    */
   private recover(shuffled: string): { cipherText: string, key: string } {
     const key = [];
-    let [cipherText, keyLength] = shuffled.split(':');
 
-    for (let i = 0; i < +keyLength; i++) {
-      const parts = this.getTextParts(cipherText);
+    for (let i = 0; i < this.config.keyMaxLength; i++) {
+      const parts = this.getTextParts(shuffled);
 
       /**
        * left part of cipher text contains key char
@@ -131,11 +131,11 @@ export default class CryptoSystem {
       const keyChar = parts.left.substr(parts.left.length - 1);
 
       key.push(keyChar);
-      cipherText = parts.right + left;
+      shuffled = parts.right + left;
     }
 
     return {
-      cipherText,
+      cipherText: shuffled,
       key: key.reverse().join(''),
     };
   }

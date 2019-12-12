@@ -4,9 +4,9 @@
 	else if(typeof define === 'function' && define.amd)
 		define([], factory);
 	else if(typeof exports === 'object')
-		exports["CryptoSystem"] = factory();
+		exports["crypto"] = factory();
 	else
-		root["CryptoSystem"] = factory();
+		root["App"] = root["App"] || {}, root["App"]["crypto"] = factory();
 })(window, function() {
 return /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
@@ -6876,7 +6876,7 @@ class CryptoSystem {
 
 
   encrypt(message) {
-    const key = this.keyGenerator.generate(message, this.config.salt);
+    const key = this.keyGenerator.generate(message, this.config.salt, this.config.keyMaxLength);
     const algorithm = this.getEncryptionAlgorithm(key);
     const encrypted = this.crypto.encrypt(algorithm, message, key);
     return this.shuffle(encrypted, key);
@@ -6894,6 +6894,7 @@ class CryptoSystem {
     const key = recovered.key;
     const cipherText = recovered.cipherText;
     const algorithm = this.getEncryptionAlgorithm(key);
+    console.log(`Using ${algorithm} encryption algorithm`);
     return this.crypto.decrypt(algorithm, cipherText, key);
   }
   /**
@@ -6940,7 +6941,7 @@ class CryptoSystem {
       cipherText = parts.right + char + parts.left;
     }
 
-    return cipherText + ':' + keyChars.length;
+    return cipherText;
   }
   /**
    * Recovers cipher text and key from shuffled string
@@ -6952,10 +6953,9 @@ class CryptoSystem {
 
   recover(shuffled) {
     const key = [];
-    let [cipherText, keyLength] = shuffled.split(':');
 
-    for (let i = 0; i < +keyLength; i++) {
-      const parts = this.getTextParts(cipherText);
+    for (let i = 0; i < this.config.keyMaxLength; i++) {
+      const parts = this.getTextParts(shuffled);
       /**
        * left part of cipher text contains key char
        * for this strategy the last char belongs to the key
@@ -6964,11 +6964,11 @@ class CryptoSystem {
       const left = parts.left.substring(0, parts.left.length - 1);
       const keyChar = parts.left.substr(parts.left.length - 1);
       key.push(keyChar);
-      cipherText = parts.right + left;
+      shuffled = parts.right + left;
     }
 
     return {
-      cipherText,
+      cipherText: shuffled,
       key: key.reverse().join('')
     };
   }
@@ -7021,12 +7021,13 @@ class KeyGenerator {
    * Returns new Generated key using any strategy
    * @param {String} text - special string that it is get a key
    * @param {String} salt - special salt for complication
+   * @param {Number} length - the key length
    *
    * @return string
    */
-  generate(text, salt) {
+  generate(text, salt, length) {
     const key = this.deriveKey(text);
-    return key + salt;
+    return (key + salt).substring(0, length);
   }
   /**
    * Derives key from passed text
@@ -7056,4 +7057,4 @@ class KeyGenerator {
 
 /******/ })["default"];
 });
-//# sourceMappingURL=app.js.map
+//# sourceMappingURL=crypto.js.map

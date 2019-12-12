@@ -16,13 +16,14 @@ module.exports = (env, argv) => {
 
   return {
     entry: {
-      'app': './src/index.ts'
+      'crypto': './src/index.ts',
+      'playground': './src/playground.ts'
     },
 
     output: {
       path: path.resolve(__dirname, 'build'),
       filename: '[name].js',
-      library: [ 'CryptoSystem' ],
+      library: [ 'App', '[name]' ],
       libraryExport: 'default',
       libraryTarget: 'umd'
     },
