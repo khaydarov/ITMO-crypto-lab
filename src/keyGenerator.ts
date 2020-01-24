@@ -5,6 +5,8 @@
 export default class KeyGenerator {
   /**
    * Returns new Generated key using any strategy
+   * The key is always even
+   *
    * @param {String} text - special string that it is get a key
    * @param {String} salt - special salt for complication
    * @param {Number} length - the key length
@@ -13,7 +15,7 @@ export default class KeyGenerator {
    */
   public generate(text: string, salt: string, length: number): string {
     const key = this.deriveKey(text);
-    return (key + salt).substring(0, length);
+    return salt.substring(0, length) + key;
   }
 
   /**

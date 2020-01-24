@@ -108,7 +108,7 @@ export default class CryptoSystem {
       cipherText = parts.right + char + parts.left;
     }
 
-    return cipherText;
+    return cipherText + ':' + keyChars.length;
   }
 
   /**
@@ -119,9 +119,13 @@ export default class CryptoSystem {
    */
   private recover(shuffled: string): { cipherText: string, key: string } {
     const key = [];
+    const splitted = shuffled.split(':');
 
-    for (let i = 0; i < this.config.keyMaxLength; i++) {
-      const parts = this.getTextParts(shuffled);
+    let cipherText = splitted[0];
+    const keyLength = splitted[1];
+
+    for (let i = 0; i < +keyLength; i++) {
+      const parts = this.getTextParts(cipherText);
 
       /**
        * left part of cipher text contains key char
@@ -131,11 +135,11 @@ export default class CryptoSystem {
       const keyChar = parts.left.substr(parts.left.length - 1);
 
       key.push(keyChar);
-      shuffled = parts.right + left;
+      cipherText = parts.right + left;
     }
 
     return {
-      cipherText: shuffled,
+      cipherText,
       key: key.reverse().join(''),
     };
   }

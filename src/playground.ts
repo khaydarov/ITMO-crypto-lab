@@ -78,7 +78,7 @@ export default class Playground {
       console.log('Message is:', message);
 
       const cipherText = this.crypto.encrypt(message);
-      console.log('Sending ]encrypted message:', cipherText);
+      console.log('Sending encrypted message:', cipherText);
       console.log('------------------------');
 
       this.ws.send(cipherText);

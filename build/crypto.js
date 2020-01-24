@@ -6941,7 +6941,7 @@ class CryptoSystem {
       cipherText = parts.right + char + parts.left;
     }
 
-    return cipherText;
+    return cipherText + ':' + keyChars.length;
   }
   /**
    * Recovers cipher text and key from shuffled string
@@ -6953,9 +6953,12 @@ class CryptoSystem {
 
   recover(shuffled) {
     const key = [];
+    const splitted = shuffled.split(':');
+    let cipherText = splitted[0];
+    const keyLength = splitted[1];
 
-    for (let i = 0; i < this.config.keyMaxLength; i++) {
-      const parts = this.getTextParts(shuffled);
+    for (let i = 0; i < +keyLength; i++) {
+      const parts = this.getTextParts(cipherText);
       /**
        * left part of cipher text contains key char
        * for this strategy the last char belongs to the key
@@ -6964,11 +6967,11 @@ class CryptoSystem {
       const left = parts.left.substring(0, parts.left.length - 1);
       const keyChar = parts.left.substr(parts.left.length - 1);
       key.push(keyChar);
-      shuffled = parts.right + left;
+      cipherText = parts.right + left;
     }
 
     return {
-      cipherText: shuffled,
+      cipherText,
       key: key.reverse().join('')
     };
   }
@@ -7019,6 +7022,8 @@ __webpack_require__.r(__webpack_exports__);
 class KeyGenerator {
   /**
    * Returns new Generated key using any strategy
+   * The key is always even
+   *
    * @param {String} text - special string that it is get a key
    * @param {String} salt - special salt for complication
    * @param {Number} length - the key length
@@ -7027,7 +7032,7 @@ class KeyGenerator {
    */
   generate(text, salt, length) {
     const key = this.deriveKey(text);
-    return (key + salt).substring(0, length);
+    return salt.substring(0, length) + key;
   }
   /**
    * Derives key from passed text
